@@ -30,7 +30,7 @@ void pushStart(struct nodePointer *list, double data) {
     list->head = node;
 }
 
-/*void pushEnd(struct nodePointer *list, double data){
+void pushEnd(struct nodePointer *list, double data){
   struct node *node = malloc(sizeof(struct node));
   struct node *tmpHead = list->head;
   if (list->head != NULL){
@@ -44,9 +44,7 @@ void pushStart(struct nodePointer *list, double data) {
   }
   node->data = data;
   node->next = NULL;
-  double numB = pop(list);
-  pushStart(list, numA);
-} */
+}
 
 double pop(struct nodePointer *list) {
     double num = (list->head)->data;
@@ -130,7 +128,24 @@ void postfix(struct nodePointer *list, struct nodePointer *opList, char *passCha
     }
 }
 
-void infix() {
+void infix(struct nodePointer *RPN, char *passChar,struct nodePointer *opList) {
+    if(*passChar == '('){
+        pushStart(opList,*passChar);
+    }
+    else if(*passChar == ')'){
+        double oper;
+        while(oper != '('){
+            oper = pop(opList);
+            pushEnd(RPN,oper);
+            pushEnd(RPN,' ');
+        }
+    }
+    else if(*passChar == '^'){
+        while(opList->head->data == '^'){
+            pushEnd(RPN,pop(opList));
+            pushEnd(RPN,' ');
+        }
+    }
 }
 
 double main() {
@@ -143,29 +158,37 @@ double main() {
     struct nodePointer *list = newnodePointer();
     struct nodePointer *opList = newnodePointer();
     struct nodePointer *rpnList = newnodePointer();
-    char str[] = "geeksers";
-    printf("%c %s", *init, str);
+    boolean isPostfix = false;
     if (*init == 'p') {
-        printf("Got here");
         while (*init != ' ') {
             *init = fgetc(file);
         }
-        bool isbigNum = false;
-        int numOfRun = -1;
-        *init = fgetc(file);
-        while (*init != '\n' || *init != EOF) {
-            if (isdigit(*init) == 0) {
-                isbigNum = true;
-                numOfRun = -1;
-            } else {
-                isbigNum = false;
-                numOfRun++;
-            }
-            if (*init != ' ') {
-                postfix(list, opList, init, isbigNum, numOfRun);
-            }
+        isPostfix = true;
+    }
+    else if(*init == 'i'){
+        while(*init != ' '){
             *init = fgetc(file);
         }
+        while(*init != '\n' && *init != EOF){
+            infix();
+            *init = fgetc(file);
+        }
+    }
+    bool isbigNum = false;
+    int numOfRun = -1;
+    *init = fgetc(file);
+    while (*init != '\n' && *init != EOF) {
+        if (isdigit(*init) == 0) {
+            isbigNum = true;
+            numOfRun = -1;
+        } else {
+            isbigNum = false;
+            numOfRun++;
+        }
+        if (*init != ' ') {
+            postfix(list, opList, init, isbigNum, numOfRun);
+        }
+        *init = fgetc(file);
     }
     printf("The answer is: %f", (list->head)->data);
 }
