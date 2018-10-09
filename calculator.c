@@ -116,11 +116,12 @@ void postfix(struct nodePointer *list, struct nodePointer *opList, char *passCha
         if (isdigit(*passChar)) {
             double numA = pop(list);
             double *numP = &numA;
-            normalise(numP, *numP);
+            double otherNum = *passChar - '0';
+            normalise(numP, otherNum);
             pushStart(list, *numP);
         }
-    } else if (isdigit(passChar)) {
-        double data = *passChar;
+    } else if (isdigit(*passChar)) {
+        double data = *passChar -'0';
         pushStart(list, data);
     } else {
         double data = *passChar;
