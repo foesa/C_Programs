@@ -152,8 +152,8 @@ double main() {
         }
         bool isbigNum = false;
         int numOfRun = -1;
+        *init = fgetc(file);
         while (*init != '\n' || *init != EOF) {
-            *init = fgetc(file);
             if (isdigit(*init) == 0) {
                 isbigNum = true;
                 numOfRun = -1;
@@ -164,6 +164,7 @@ double main() {
             if (*init != ' ') {
                 postfix(list, opList, init, isbigNum, numOfRun);
             }
+            *init = fgetc(file);
         }
     }
     printf("The answer is: %f", (list->head)->data);
