@@ -141,10 +141,18 @@ void infix(struct nodePointer *RPN, char *passChar,struct nodePointer *opList) {
         }
     }
     else if(*passChar == '^'){
-        while(opList->head->data == '^'){
+        while((opList->head)->data == '^'){
             pushEnd(RPN,pop(opList));
             pushEnd(RPN,' ');
         }
+        pushEnd(opList,*passChar);
+    }
+    else if (*passChar == 'X' || *passChar == '/'){
+        while((opList->head)->data == '^'){
+            pushEnd(RPN,pop(opList));
+            pushEnd(RPN,' ');
+        }
+        pushEnd(opList,*passChar);
     }
 }
 
