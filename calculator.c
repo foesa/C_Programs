@@ -154,6 +154,13 @@ void infix(struct nodePointer *RPN, char *passChar,struct nodePointer *opList) {
         }
         pushEnd(opList,*passChar);
     }
+    else if(*passChar == '-' || *passChar == '+'){
+        while((opList->head)->data == '^' || (opList->head)->data == 'X' || (opList->head)->data == '/'){
+            pushEnd(RPN,pop(opList));
+            pushEnd(RPN,' ');
+        }
+        pushEnd(opList,*passChar);
+    }
 }
 
 double main() {
