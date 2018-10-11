@@ -180,23 +180,18 @@ void infix(struct nodePointer *RPN, char *passChar,struct nodePointer *opList,bo
                     numA = popEnd(RPN);
                 }
                 double *numP = &numA;
-                double otherNum = *passChar;
+                double otherNum = *passChar - '0';
                 normalise(numP, otherNum);
                 pushEnd(RPN, *numP);
                 pushEnd(RPN,' ');
 
             }
         } else if (isdigit(*passChar)) {
-            double data = *passChar ;
+            double data = *passChar - '0' ;
             pushEnd(RPN, data);
             pushEnd(RPN,' ');
         }
     }
-}
-
-void postfixStack(struct nodePointer *rpnList,struct nodePointer *list,struct nodePointer *opList, bool isbignum,int numOfRuns){
-    char data = pop(rpnList);
-    postfix(list,opList,data,isbignum,numOfRuns);
 }
 
 double main() {
@@ -209,6 +204,7 @@ double main() {
     struct nodePointer *list = newnodePointer();
     struct nodePointer *opList = newnodePointer();
     struct nodePointer *rpnList = newnodePointer();
+    struct nodePointer *rpnOpList = newnodePointer();
     bool isPostfix = false;
     bool isbigNum = false;
     int numOfRun = -1;
@@ -238,16 +234,15 @@ double main() {
                 postfix(list, opList, init, isbigNum, numOfRun);
             }
             else{
-                infix(rpnList,init,opList,isbigNum,numOfRun);
+                infix(rpnList,init,rpnOpList,isbigNum,numOfRun);
             }
         }
         *init = fgetc(file);
-        if(*init == '\n' || *init == EOF){
-            if(isPostfix){
-                bool finished = false;
-                while(!finished){
-                    postfixStack(rpnList,opList,)
-                }
+        if(isPostfix && (*init == '\n'|| *init == EOF)){
+            while(rpnList->head != NULL){
+                char charpass = pop(rpnList);
+                char *pass = &charpass;
+                postfix(list,opList,pass,false,0);
             }
         }
     }
