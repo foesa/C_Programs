@@ -120,7 +120,13 @@ void evalInput(struct nodePointer *list, struct nodePointer *opList) {
     }
 }
 
-void postfix(struct nodePointer *list, struct nodePointer *opList, char *passChar, bool isbigNum, int numOfRun) {
+void postfix(struct nodePointer *list, struct nodePointer *opList, char *passChar, bool isbigNum, int numOfRun, bool isPostfix, bool *needNorm) {
+    if(isPostfix){
+         *passChar = *passChar + '0';
+         if(isdigit(*passChar) == 0){
+             *passChar = *passChar - '0';
+         }
+    }
     if (!isbigNum && numOfRun > 0) {
         if (isdigit(*passChar)) {
             double numA = pop(list);
@@ -132,64 +138,65 @@ void postfix(struct nodePointer *list, struct nodePointer *opList, char *passCha
     } else if (isdigit(*passChar)) {
         double data = *passChar -'0';
         pushStart(list, data);
-    } else {
+    }
+    else if(*needNorm){
+        if(isdigit(*passChar)){
+            double numA = pop(list);
+            double *numP = &numA;
+            double other = *passChar - '0';
+            normalise(numP,other);
+            pushStart(list,*numP);
+            *needNorm = false;
+        }
+    }
+    else if(*passChar == '*'){
+        *needNorm = true;
+    }
+    else {
         double data = *passChar;
         pushStart(opList, data);
         evalInput(list, opList);
     }
 }
 
-void infix(struct nodePointer *RPN, char *passChar,struct nodePointer *opList,bool isBigNum, int numOfRun) {
-    if(*passChar == '('){
-        pushStart(opList,*passChar);
+void infix(struct nodePointer *RPN, double passChar,struct nodePointer *opList,bool isBigNum, int numOfRun) {
+    if(passChar == '('){
+        pushStart(opList,passChar);
     }
-    else if(*passChar == ')'){
-        double oper;
-        while(oper != '('){
-            oper = pop(opList);
-            pushEnd(RPN,oper);
-            pushEnd(RPN,' ');
-        }
-    }
-    else if(*passChar == '^'){
-        while((opList->head)->data == '^'){
+    else if(passChar == ')'){
+        while(opList->head != NULL && opList->head->data != '('){
             pushEnd(RPN,pop(opList));
-            pushEnd(RPN,' ');
         }
-        pushEnd(opList,*passChar);
-    }
-    else if (*passChar == 'X' || *passChar == '/'){
-        while((opList->head)->data == '^'){
-            pushEnd(RPN,pop(opList));
-            pushEnd(RPN,' ');
+        if(opList->head != NULL){
+            pop(opList);
         }
-        pushEnd(opList,*passChar);
     }
-    else if(*passChar == '-' || *passChar == '+'){
-        while((opList->head)->data == '^' || (opList->head)->data == 'X' || (opList->head)->data == '/'){
-            pushEnd(RPN,pop(opList));
-            pushEnd(RPN,' ');
+    else if (passChar == '^'){ //check precedence
+        while (opList->head != NULL && opList->head->data == '^'){ //check precedence
+            pushEnd(RPN, pop(opList));
         }
-        pushEnd(opList,*passChar);
-    }
-    else if(isdigit(*passChar)){
-        if (!isBigNum && numOfRun > 0) {
-            if (isdigit(*passChar)) {
-                double numA = popEnd(RPN);
-                while(numA == ' '){
-                    numA = popEnd(RPN);
-                }
-                double *numP = &numA;
-                double otherNum = *passChar - '0';
-                normalise(numP, otherNum);
-                pushEnd(RPN, *numP);
-                pushEnd(RPN,' ');
-
+        pushStart(opList, passChar);
+    }else if (passChar == 'X' || passChar == '/'){ //check precedence
+        while (opList->head != NULL && opList->head->data == '^'){ //check precedence
+            pushEnd(RPN, pop(opList));
+        }
+        pushStart(opList, passChar);//push to stack
+    }else if (passChar == '-' || passChar == '+'){ //check precedence
+        while (opList->head != NULL && (opList->head->data == '^' || opList->head->data == 'X' || opList->head->data == '/')){ //check precedence
+            pushEnd(RPN, pop(opList));
+        }
+        pushStart(opList, passChar);//push to stack
+    }else {
+        if (isBigNum && numOfRun >0) {
+            if (isdigit(passChar)) {
+                double num = passChar - '0';
+                pushEnd(RPN,'*');
+                pushEnd(RPN,num);
             }
-        } else if (isdigit(*passChar)) {
-            double data = *passChar - '0' ;
-            pushEnd(RPN, data);
-            pushEnd(RPN,' ');
+        }
+        else {
+            double num = passChar - '0'; //convert to double
+            pushEnd(RPN, num);
         }
     }
 }
@@ -231,18 +238,21 @@ double main() {
         }
         if (*init != ' ') {
             if(!isPostfix){
-                postfix(list, opList, init, isbigNum, numOfRun);
+                postfix(list, opList, init, isbigNum, numOfRun,isPostfix,false);
             }
             else{
-                infix(rpnList,init,rpnOpList,isbigNum,numOfRun);
+                double passer = *init;
+                infix(rpnList,passer,rpnOpList,isbigNum,numOfRun);
             }
         }
         *init = fgetc(file);
         if(isPostfix && (*init == '\n'|| *init == EOF)){
+            bool needNorm = false;
+            bool *normP = &needNorm;
             while(rpnList->head != NULL){
                 char charpass = pop(rpnList);
                 char *pass = &charpass;
-                postfix(list,opList,pass,false,0);
+                postfix(list,opList,pass,false,0,isPostfix,normP);
             }
         }
     }
