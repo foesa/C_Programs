@@ -117,10 +117,16 @@ void evalInput(struct nodePointer *list, struct nodePointer *opList) {
         subtract(list);
     } else if (operand == '^') {
         powerOf(list);
+    } else if (operand == '*'){
+        double numB = pop(list);
+        double numA = pop(list);
+        double *num = &numA;
+        normalise(num,numB);
+        pushStart(list,*num);
     }
 }
 
-void postfix(struct nodePointer *list, struct nodePointer *opList, char *passChar, bool isbigNum, int numOfRun, bool isPostfix, bool *needNorm) {
+void postfix(struct nodePointer *list, struct nodePointer *opList, char *passChar, bool isbigNum, int numOfRun, bool isPostfix) {
     if(isPostfix){
          *passChar = *passChar + '0';
          if(isdigit(*passChar) == 0){
@@ -138,19 +144,6 @@ void postfix(struct nodePointer *list, struct nodePointer *opList, char *passCha
     } else if (isdigit(*passChar)) {
         double data = *passChar -'0';
         pushStart(list, data);
-    }
-    else if(*needNorm){
-        if(isdigit(*passChar)){
-            double numA = pop(list);
-            double *numP = &numA;
-            double other = *passChar - '0';
-            normalise(numP,other);
-            pushStart(list,*numP);
-            *needNorm = false;
-        }
-    }
-    else if(*passChar == '*'){
-        *needNorm = true;
     }
     else {
         double data = *passChar;
@@ -187,11 +180,11 @@ void infix(struct nodePointer *RPN, double passChar,struct nodePointer *opList,b
         }
         pushStart(opList, passChar);//push to stack
     }else {
-        if (isBigNum && numOfRun >0) {
+        if (!isBigNum && numOfRun > 0) {
             if (isdigit(passChar)) {
                 double num = passChar - '0';
-                pushEnd(RPN,'*');
                 pushEnd(RPN,num);
+                pushEnd(RPN,'*');
             }
         }
         else {
@@ -238,7 +231,7 @@ double main() {
         }
         if (*init != ' ') {
             if(!isPostfix){
-                postfix(list, opList, init, isbigNum, numOfRun,isPostfix,false);
+                postfix(list, opList, init, isbigNum, numOfRun,isPostfix);
             }
             else{
                 double passer = *init;
@@ -247,12 +240,10 @@ double main() {
         }
         *init = fgetc(file);
         if(isPostfix && (*init == '\n'|| *init == EOF)){
-            bool needNorm = false;
-            bool *normP = &needNorm;
             while(rpnList->head != NULL){
                 char charpass = pop(rpnList);
                 char *pass = &charpass;
-                postfix(list,opList,pass,false,0,isPostfix,normP);
+                postfix(list,opList,pass,false,0,isPostfix);
             }
         }
     }
