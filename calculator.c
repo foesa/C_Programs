@@ -101,8 +101,12 @@ void powerOf(struct nodePointer *list) {
 }
 
 void normalise(double *numA, double numB) {
-    *numA = *numA * 10;
-    *numA += numB;
+    int n = 1;
+    while(numB > pow(10,n)){
+        n++;
+    }
+    *numA = *numA * pow(10,n);
+    *numA = *numA + numB;
 }
 
 void evalInput(struct nodePointer *list, struct nodePointer *opList) {
@@ -193,7 +197,15 @@ void infix(struct nodePointer *RPN, double passChar,struct nodePointer *opList,b
         }
     }
 }
-
+void clearOplist(struct nodePointer *opList,struct nodePointer *rpnList){
+    if(opList->head != NULL){
+        while((opList->head) != NULL){
+            pushEnd(rpnList,pop(opList));
+        }
+    }else{
+        pushEnd(rpnList,pop(opList));
+    }
+}
 double main() {
     char initChar;
     char *init;
@@ -240,6 +252,7 @@ double main() {
         }
         *init = fgetc(file);
         if(isPostfix && (*init == '\n'|| *init == EOF)){
+            clearOplist(rpnOpList,rpnList);
             while(rpnList->head != NULL){
                 char charpass = pop(rpnList);
                 char *pass = &charpass;
