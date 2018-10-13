@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdbool.h>
+#include <memory.h>
 
 struct node {
     double data;
@@ -206,12 +207,32 @@ void clearOplist(struct nodePointer *opList,struct nodePointer *rpnList){
         pushEnd(rpnList,pop(opList));
     }
 }
-double main() {
+int main(int argc, char ** argv) {
+    char * filename;
+
+    if ( argc == 1 ) {
+        printf("Error: No input filename provided\n");
+        printf("Usage: %s <input filename>\n", argv[0]);
+        exit(1);
+    }
+    else if ( argc > 2 ) {
+        printf("Error: Too many command line parameters\n");
+        printf("Usage: %s <input filename>\n", argv[0]);
+        exit(1);
+    }
+    else {
+        filename = argv[1];
+    }
+
     char initChar;
     char *init;
     init = &initChar;
     FILE *file;
-    file = fopen("/home/foesa/C-Programs/input.txt", "r");
+    FILE *outFile;
+    file = fopen(filename, "r");
+    char *newFile = strcat(filename, ".results");
+    outFile = fopen(newFile,"w");
+    if (file){
     initChar = fgetc(file);
     struct nodePointer *list = newnodePointer();
     struct nodePointer *opList = newnodePointer();
@@ -262,3 +283,4 @@ double main() {
     }
     printf("The answer is: %f", (list->head)->data);
 }
+    }
