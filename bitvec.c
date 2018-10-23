@@ -31,6 +31,7 @@ int bitset_size(struct bitset * this){
     if(this != NULL){
         return this->size_in_bits;
     }
+    return 0;
 }
 
 // get the number of items that are stored in the set
@@ -45,6 +46,7 @@ int bitset_cardinality(struct bitset * this){
             }
         }
     }
+    printf("%d",count);
     return count;
 }
 
@@ -67,12 +69,14 @@ int bitset_lookup(struct bitset * this, int item){
 // add an item, with number 'item' to the set
 // has no effect if the item is already in the set
 int bitset_add(struct bitset * this, int item){
-    int word_index = item/this->bits_per_word;
-    int bit_index = item%this->bits_per_word;
-    unsigned mask = 1;
-    mask<<=bit_index;
-    this->bits[word_index] |= mask;
-    return 1;
+    if(this != NULL) {
+        int word_index = item/this->bits_per_word;
+        int bit_index = item%this->bits_per_word;
+        unsigned mask = 1;
+        mask<<=bit_index;
+        this->bits[word_index] |= mask;
+        return 1;
+    }
 }
 
 // remove an item with number 'item' from the set
