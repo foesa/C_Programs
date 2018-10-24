@@ -12,17 +12,20 @@ struct bitset {
 struct bitset * bitset_new(int size){
     struct bitset*result;
     int size_in_words;
+    int i;
+    int bits_per_word = (sizeof(unsigned int)*8);
     result = malloc(sizeof(struct bitset));
-    size_in_words = size/ (sizeof(unsigned int)*8);
-    if(size%(sizeof(unsigned int)*8)!=0){
+    size_in_words = size/ bits_per_word;
+    if(size%bits_per_word!=0){
         size_in_words++;
     }
     result->bits = malloc(sizeof(unsigned int)*size_in_words);
-    for(int i =0;i<size_in_words,i++;){
+    for(i =0;i<size_in_words;i++){
         result->bits[i]=0;
     }
     result ->size_in_bits = size;
     result->size_in_words = size_in_words;
+    result->bits_per_word = bits_per_word;
     return result;
 }
 
