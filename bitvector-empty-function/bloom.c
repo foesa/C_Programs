@@ -29,33 +29,47 @@ int hash_string(char * string, int seed, int range)
 // create a new, empty Bloom filter with 'size' slots
 struct bloom * bloom_new(int size)
 {
-
-}
+    struct bloom * bloomFilter;
+    bloomFilter->bit_vector = bitset_new(size);
+    return bloomFilter;
+};
 
 // check to see if a string is in the set
 int bloom_lookup(struct bloom * this, char * item)
 {
+    int hash1 = hash_string(item,BLOOM_HASH1,this->bit_vector->size_in_bits);
+    if(bitset_lookup(this->bit_vector,hash1)== 0){
+        return 0;
+    }
+    int hash2 = hash_string(item,BLOOM_HASH2,this->bit_vector->size_in_bits);
+    if(bitset_lookup(this->bit_vector,hash2)==0){
+        return 0;
+    }
+    return 1;
 }
 
 // add a string to the set has no effect if the item is already in the
 // set; note that you cannot safely remove items from a Bloom filter
 void bloom_add(struct bloom * this, char * item)
 {
-
+    int hash1 = hash_string(item,BLOOM_HASH1,this->bit_vector->size_in_bits);
+    int hash2 = hash_string(item,BLOOM_HASH2,this->bit_vector->size_in_bits);
+    bitset_add(this->bit_vector,hash1);
+    bitset_add(this->bit_vector,hash2);
 }
 
 // place the union of src1 and src2 into dest
 void bloom_union(struct bloom * dest, struct bloom * src1,
 		  struct bloom * src2)
 {
-
+    bitset_union(dest->bit_vector,src1->bit_vector,src2->bit_vector);
 }
 
 // place the intersection of src1 and src2 into dest
 void bloom_intersect(struct bloom * dest, struct bloom * src1,
                   struct bloom * src2)
 {
-
+    bitset_union(dest->bit_vector,src1->bit_vector,src2->bit_vector);
 }
 
 // print out the bits that are 1 in the bit vector of
