@@ -120,8 +120,8 @@ void bitset_print(struct bitset *this){
     for(int i = 0; i < size; i++){
         // printf("%d = %d ", i, bitset_lookup(this, i));
         if(bitset_lookup(this, i) == 1){
-            printf("%d ", i);
-            printf("foundAThing ");
+            printf("%c ", i);
+            //printf("foundAThing ");
         }
     }
     printf("\n");
@@ -145,7 +145,7 @@ void myTest(){
     char *string2 = "Nothing but the rain";
 
     add_chars_to_set(a, string1);
-    add_chars_to_set(a, string2);
+    add_chars_to_set(b, string2);
 
     //print the contents of the sets
     bitset_print(a);
