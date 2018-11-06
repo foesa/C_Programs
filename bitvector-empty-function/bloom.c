@@ -29,8 +29,9 @@ int hash_string(char * string, int seed, int range)
 // create a new, empty Bloom filter with 'size' slots
 struct bloom * bloom_new(int size)
 {
-    struct bloom * bloomFilter;
+    struct bloom * bloomFilter = malloc(sizeof(bloomFilter));
     bloomFilter->bit_vector = bitset_new(size);
+    bloomFilter->size = size;
     return bloomFilter;
 };
 
