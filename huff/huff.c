@@ -52,30 +52,34 @@ void huffcoder_build_tree(struct huffcoder * this)
     ArrSort(huffArr);
     int size = NELEMS(huffArr);
     int num = 0;
-    while( huffArr[1] != NULL){
-        struct huffchar * start1 = huffArr[0];
-        struct huffchar * start2 = huffArr[1];
+    int fir = 0;
+    int sec = 1;
+    int index = 1;
+    int extindex = 1;
+    while( huffArr[254] != NULL){
+        struct huffchar * start1 = huffArr[fir];
+        struct huffchar * start2 = huffArr[sec];
         struct huffchar * comp = new_huffchar(start1->freq+start2->freq,256-num,1);
-        struct huffchar * arr2[NUM_CHARS];
-        int start =2;
         bool inserted = false;
-        for(int count =0;count<256-num;count++){
-            if(huffArr[start]->freq <= comp->freq){
-                huffArr[count] = huffArr[start];
-                start++;
-            }
-            else if(huffArr[start]->freq > comp->freq ){
-                if(!inserted){
-                    huffArr[count]= comp;
+        huffArr[fir] = NULL;
+        while(!inserted) {
+            if (huffArr[index]->freq <= comp->freq) {
+                huffArr[index] = huffArr[index + 1];
+            } else {
+                if (!inserted) {
+                    huffArr[index] = comp;
                     inserted = true;
                 }
-                else{
-                    huffArr[count] = huffArr[start];
-                    start++;
-                }
             }
+            index++;
         }
+        num++;
+        extindex++;
+        index = extindex;
+        fir++;
+        sec++;
     }
+    this->tree = huffArr[255];
 }
 
 // recursive function to convert the Huffman tree into a table of
