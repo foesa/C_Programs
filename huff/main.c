@@ -6,7 +6,6 @@
 #include "huff.h"
 
 
-
 int main(int argc, char ** argv)
 {
   int char_freqs[NUM_CHARS];
